@@ -302,6 +302,7 @@ canvas{background:#050510;display:block;box-shadow:0 0 60px rgba(0,255,255,0.1)}
     <button class="btn btn-no" onclick="noRevive()">💔 安息吧...</button>
   </div>
 </div>
+<script src="bossforms.js"></script>
 <script>
 var c=document.getElementById('c'),ctx=c.getContext('2d');
 c.width=500;c.height=750;
@@ -619,7 +620,7 @@ function update(){
       bossWarning=1;
       bossWarnTimer=120;
       document.getElementById('bossWarn').style.display='block';
-      var bossTitle2=bossKills>0?' ['+['','觉醒一阶','深渊二阶','雷电三阶','暗影四阶','魔王终阶'][Math.min(bossKills,5)]+']':'';
+      var bossTitle2=bossKills>0?' ['+['','暗黑圆盘','机械蜘蛛','赛博飞龙','暗影魔像','终焉天使','虚空海妖','机械泰坦','水晶蜂后'][Math.min(bossKills,8)]+']':'';
       texts.push({x:c.width/2,y:150,text:'⏰ 暗影领主'+bossTitle2+'即将降临!',co:'#f44',life:60});
     }
   }
@@ -630,9 +631,9 @@ function update(){
       document.getElementById('bossWarn').style.display='none';
       bossActive=1;
       var bhp=20+level*2+bossKills*10;
-      boss={x:c.width/2,y:-60,w:80,h:80,hp:bhp,mhp:bhp,sp:1.2,dir:1,t:0,phase:0,atkTimer:0,atkPattern:0,bk:bossKills};
-      var bkNames2=['','✦ 觉醒一阶 ✦','✦ 深渊二阶 ✦','✦ 雷电三阶 ✦','✦ 暗影四阶 ✦','✦ 魔王终阶 ✦'];
-      var bkCol2=Math.min(bossKills,5);
+      boss={x:c.width/2,y:-60,w:80,h:80,hp:bhp,mhp:bhp,sp:1.2,dir:1,t:0,phase:0,atkTimer:0,atkPattern:0,bk:bossKills,form:bossKills%8};
+      var bkNames2=['','✦ 暗黑圆盘 ✦','✦ 机械蜘蛛 ✦','✦ 赛博飞龙 ✦','✦ 暗影魔像 ✦','✦ 终焉天使 ✦','✦ 虚空海妖 ✦','✦ 机械泰坦 ✦','✦ 水晶蜂后 ✦'];
+      var bkCol2=Math.min(bossKills,8);
       var bossTitle=bossKills>0?bkNames2[bkCol2]:'';
       texts.push({x:c.width/2,y:c.height/2-40,text:'👑 BOSS登场! '+bossTitle,co:'#f22',life:70});
       texts.push({x:c.width/2,y:c.height/2-15,text:'HP: '+bhp,co:'#ff0',life:60});
@@ -1120,167 +1121,15 @@ function draw(){
     ctx.restore();
   });
   
-  // BOSS绘制 - 超级酷炫版
+  // BOSS绘制 - 调用外部形态库
   if(bossActive && boss){
     ctx.save();
     ctx.translate(boss.x,boss.y);
     var pl=boss.hp/boss.mhp;
-    var pulse=Math.sin(st*0.05);
-    var pulse2=Math.sin(st*0.08);
     
-    // === 背景光晕 ===
-    var glow2=ctx.createRadialGradient(0,0,10,0,0,90);
-    glow2.addColorStop(0,'rgba(255,0,0,0.15)');
-    glow2.addColorStop(0.5,'rgba(200,0,50,0.08)');
-    glow2.addColorStop(1,'rgba(100,0,0,0)');
-    ctx.fillStyle=glow2;
-    ctx.beginPath();ctx.arc(0,0,90,0,Math.PI*2);ctx.fill();
-    
-    // === 触手/机械臂 ===
-    ctx.shadowColor='#a00';ctx.shadowBlur=15;
-    for(var t=0;t<4;t++){
-      var ta=t*1.57+st*0.015;
-      var tr=32+Math.sin(st*0.06+t*2)*4;
-      ctx.strokeStyle='rgba(180,30,30,'+(0.5+Math.sin(st*0.04+t)*0.2)+')';
-      ctx.lineWidth=5+Math.sin(st*0.07+t)*2;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(ta)*20,Math.sin(ta)*20);
-      var cp1x=Math.cos(ta+0.4)*tr+Math.sin(st*0.05+t)*6;
-      var cp1y=Math.sin(ta+0.4)*tr+Math.cos(st*0.05+t)*6;
-      var cp2x=Math.cos(ta+0.8)*(tr+15)-Math.sin(st*0.06+t)*4;
-      var cp2y=Math.sin(ta+0.8)*(tr+15)+Math.cos(st*0.06+t)*4;
-      var ex=Math.cos(ta+1.2)*(tr+20);
-      var ey=Math.sin(ta+1.2)*(tr+20);
-      ctx.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,ex,ey);
-      ctx.stroke();
-      // 触手尖端发光球
-      ctx.shadowColor='#f00';ctx.shadowBlur=20;
-      ctx.fillStyle='rgba(255,50,0,'+(0.6+Math.sin(st*0.09+t)*0.3)+')';
-      ctx.beginPath();ctx.arc(ex,ey,4+Math.sin(st*0.1+t)*1.5,0,Math.PI*2);ctx.fill();
-    }
-    
-    // === 外部装甲环（旋转）===
-    ctx.shadowColor='#f80';ctx.shadowBlur=25;
-    ctx.strokeStyle='rgba(255,60,0,'+(0.3+pulse*0.1)+')';
-    ctx.lineWidth=4;
-    ctx.beginPath();
-    ctx.arc(0,0,40+Math.sin(st*0.03)*3,st*0.02,st*0.02+Math.PI*1.5);
-    ctx.stroke();
-    ctx.strokeStyle='rgba(200,30,0,'+(0.2+pulse2*0.1)+')';
-    ctx.lineWidth=3;
-    ctx.beginPath();
-    ctx.arc(0,0,45+Math.sin(st*0.04+1)*3,-st*0.015,-st*0.015+Math.PI*1.2);
-    ctx.stroke();
-    
-    // === 主体 - 暗黑金属核心 ===
-    ctx.shadowColor='#800';ctx.shadowBlur=30;
-    var gb=ctx.createRadialGradient(0,0,5,0,0,42);
-    gb.addColorStop(0,'#fee');
-    gb.addColorStop(0.1,'#f66');
-    gb.addColorStop(0.3,'#c22');
-    gb.addColorStop(0.6,'#800');
-    gb.addColorStop(0.85,'#400');
-    gb.addColorStop(1,'#200');
-    ctx.fillStyle=gb;
-    ctx.beginPath();
-    for(var k=0;k<10;k++){
-      var a=k*0.6283-st*0.008;
-      var r=38+Math.sin(st*0.06+k*1.8)*3;
-      if(k==0)ctx.moveTo(r*Math.cos(a),r*Math.sin(a));
-      else ctx.lineTo(r*Math.cos(a),r*Math.sin(a));
-    }
-    ctx.closePath();ctx.fill();
-    
-    // === 装甲板细节 ===
-    ctx.shadowBlur=0;
-    ctx.strokeStyle='rgba(100,10,10,0.5)';
-    ctx.lineWidth=1;
-    for(var k=0;k<5;k++){
-      var a=k*1.2566+st*0.005;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a)*15,Math.sin(a)*15);
-      ctx.lineTo(Math.cos(a)*37,Math.sin(a)*37);
-      ctx.stroke();
-    }
-    
-    // === 能量裂缝 ===
-    ctx.shadowColor='#f60';ctx.shadowBlur=12;
-    ctx.strokeStyle='rgba(255,100,0,'+(0.4+Math.sin(st*0.1)*0.2)+')';
-    ctx.lineWidth=2;
-    for(var k=0;k<3;k++){
-      var a=k*2.094+st*0.02;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a)*28,Math.sin(a)*28);
-      var toX=Math.cos(a+0.2+Math.sin(st*0.07)*0.3)*34;
-      var toY=Math.sin(a+0.2+Math.sin(st*0.07)*0.3)*34;
-      ctx.lineTo(toX,toY);
-      ctx.stroke();
-    }
-    
-    // === 核心眼睛 ===
-    ctx.shadowColor='#f00';ctx.shadowBlur=40;
-    var ge=ctx.createRadialGradient(-3,-3,2,0,0,22);
-    ge.addColorStop(0,'#fff');
-    ge.addColorStop(0.2,'#ff0');
-    ge.addColorStop(0.5,'#f80');
-    ge.addColorStop(0.8,'#c00');
-    ge.addColorStop(1,'#400');
-    ctx.fillStyle=ge;
-    ctx.beginPath();
-    ctx.arc(0,0,16+Math.sin(st*0.07)*2,0,Math.PI*2);
-    ctx.fill();
-    
-    // 瞳孔 - 竖瞳
-    ctx.shadowColor='#000';ctx.shadowBlur=10;
-    ctx.fillStyle='#000';
-    ctx.beginPath();
-    ctx.ellipse(0,0,5+Math.sin(st*0.03)*0.5,10+Math.sin(st*0.05)*1.5,0,0,Math.PI*2);
-    ctx.fill();
-    
-    // 瞳孔高光
-    ctx.shadowBlur=0;
-    ctx.fillStyle='rgba(255,255,255,0.6)';
-    ctx.beginPath();ctx.arc(-4,-5,2.5,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,0.3)';
-    ctx.beginPath();ctx.arc(3,3,1.5,0,Math.PI*2);ctx.fill();
-    
-    // 瞳孔周围血丝（发光纹路）
-    ctx.shadowColor='#f00';ctx.shadowBlur=5;
-    ctx.strokeStyle='rgba(255,50,0,'+(0.3+Math.sin(st*0.08)*0.2)+')';
-    ctx.lineWidth=1;
-    for(var k=0;k<8;k++){
-      var a=k*0.785+st*0.01;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a)*17,Math.sin(a)*17);
-      ctx.lineTo(Math.cos(a)*23,Math.sin(a)*23);
-      ctx.stroke();
-    }
-    
-    // === 外部尖刺 ===
-    ctx.shadowColor='#a00';ctx.shadowBlur=15;
-    ctx.fillStyle='rgba(150,20,20,0.7)';
-    for(var k=0;k<6;k++){
-      var a=k*1.047+st*0.01;
-      var spR=38+Math.sin(st*0.05+k*2)*2;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a)*spR,Math.sin(a)*spR);
-      ctx.lineTo(Math.cos(a-0.15)*(spR+10),Math.sin(a-0.15)*(spR+10));
-      ctx.lineTo(Math.cos(a+0.15)*(spR+6),Math.sin(a+0.15)*(spR+6));
-      ctx.closePath();ctx.fill();
-    }
-    
-    // === 脉冲能量环 ===
-    ctx.shadowColor='#f44';ctx.shadowBlur=20;
-    ctx.strokeStyle='rgba(255,50,50,'+(0.2+Math.sin(st*0.06)*0.15)+')';
-    ctx.lineWidth=2;
-    ctx.beginPath();
-    ctx.arc(0,0,50+Math.sin(st*0.04)*4,0,Math.PI*2);
-    ctx.stroke();
-    ctx.strokeStyle='rgba(200,0,0,'+(0.1+Math.sin(st*0.07+1)*0.1)+')';
-    ctx.lineWidth=1.5;
-    ctx.beginPath();
-    ctx.arc(0,0,55+Math.sin(st*0.05+2)*3,0,Math.PI*2);
-    ctx.stroke();
+    // 根据Boss形态绘制不同外观
+    var form=(boss.form!==undefined)?boss.form:0;
+    drawBossForm(ctx,form,st);
     
     // === 名字标牌 ===
     ctx.shadowBlur=0;
@@ -1292,14 +1141,15 @@ function draw(){
     ctx.font='bold 11px Arial';
     ctx.textAlign='center';
     ctx.shadowColor='#f00';ctx.shadowBlur=18;
-    ctx.fillText('⚡ 暗影领主 ⚡',0,-79);
+    var formNames=['⚡ 暗黑圆盘 ⚡','⚡ 机械蜘蛛 ⚡','⚡ 赛博飞龙 ⚡','⚡ 暗影魔像 ⚡','⚡ 终焉天使 ⚡','⚡ 虚空海妖 ⚡','⚡ 机械泰坦 ⚡','⚡ 水晶蜂后 ⚡'];
+    ctx.fillText(formNames[Math.min(form,7)]||'⚡ 暗影领主 ⚡',0,-79);
     // 进化等级
     if(boss && boss.bk>0){
       ctx.shadowColor='#f0f';ctx.shadowBlur=12;
       var bkCol=Math.min(boss.bk,5);
-      var bkNames=['','✦ 觉醒一阶 ✦','✦ 深渊二阶 ✦','✦ 雷电三阶 ✦','✦ 暗影四阶 ✦','✦ 魔王终阶 ✦'];
-      var bkColors=['','#0ff','#f0f','#ff0','#f00','#f44'];
-      ctx.fillStyle=bkColors[bkCol];
+      var bkNames=['','✦ 暗黑圆盘 ✦','✦ 机械蜘蛛 ✦','✦ 赛博飞龙 ✦','✦ 暗影魔像 ✦','✦ 终焉天使 ✦','✦ 虚空海妖 ✦','✦ 机械泰坦 ✦','✦ 水晶蜂后 ✦'];
+      var bkColors=['','#0ff','#0f0','#08f','#80f','#f0f','#0af','#f80','#f0f'];
+      ctx.fillStyle=bkColors[Math.min(boss.bk,8)];
       ctx.font='bold 7px Arial';
       ctx.fillText(bkNames[bkCol],0,-67);
     }
